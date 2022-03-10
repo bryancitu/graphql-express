@@ -1,9 +1,10 @@
 const { GraphQLString } = require("graphql");
-const { User } = require('../models')
+const { User } = require('../models');
+const { createJWTToken } = require("../util/auth");
 
 const register = {
     type: GraphQLString,
-    description: "Register a new users",
+    description: "Register a new users and return a token",
     args: {
         username: { type: GraphQLString },
         email: { type: GraphQLString },
@@ -11,7 +12,6 @@ const register = {
         displayName: { type: GraphQLString }
     },
     async resolve(_, args) {
-        console.log(args);
         const {username, email, password, displayName} = args
 
         // const newUser = await User.create({username, email, password, displayName}) //un aforma de crear un usuario
@@ -22,7 +22,9 @@ const register = {
         const user = await newUser.save()
         console.log(user);
 
-        return 'new user created'
+        const token = createJWTToken({_id: user._id, username: user.username, email: user.email})
+
+        return token
     }
 }
 
